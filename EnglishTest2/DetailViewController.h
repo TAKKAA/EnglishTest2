@@ -11,12 +11,17 @@
 @interface DetailViewController : UIViewController<UITextViewDelegate>{
     
     
-    IBOutlet UITextView *tv1;
-    IBOutlet UITextView *tv2;
+//    IBOutlet UITextView *tv1;
+//    IBOutlet UITextView *tv2;
 }
 
 @property (strong, nonatomic) id detailItem;
 @property (weak, nonatomic) IBOutlet UILabel *detailDescriptionLabel;
+
+@property (strong, nonatomic) IBOutlet UITextView *tview1;
+@property (strong, nonatomic) IBOutlet UITextView *tview2;
+
+
 
 @end
 

@@ -90,8 +90,14 @@
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     if ([[segue identifier] isEqualToString:@"showDetail"]) {
         NSIndexPath *indexPath = [self.tableView indexPathForSelectedRow];
-        NSDate *object = self.objects[indexPath.row];
-        [[segue destinationViewController] setDetailItem:object];
+       // NSDate *object = self.objects[indexPath.row];
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        NSString *str1 = [defaults stringForKey:@"tv1"];
+        //NSString *object1 = str1;
+        [[segue destinationViewController] setDetailItem:str1];
+        NSString *str2 = [defaults stringForKey:@"tv2"];
+        //NSString *object2 = str2;
+        [[segue destinationViewController] setDetailItem:str2];
     }
 }
 
