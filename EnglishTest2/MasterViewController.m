@@ -31,6 +31,7 @@
      _objects=[NSMutableArray array];
 }
 
+//メモファイルの読み込み
 -(void)viewWillAppear:(BOOL)animated
 {
     [_objects removeAllObjects];
@@ -60,46 +61,78 @@
     // Dispose of any resources that can be recreated.
 }
 
+//「＋」を押した時
 - (void)insertNewObject:(id)sender {
+    
+    
     if (!self.objects) {
         //self.objects = [[NSMutableArray alloc] init];
         
         _objects = [NSMutableArray array];
+
     }
     
-    NSDictionary *dic=@{ @"title": @"題名",@"body":@"内容"};
-    NSFileManager *FManager=[NSFileManager defaultManager];
-    NSURL *docDURL=[FManager URLForDirectory:NSDocumentDirectory
-                                    inDomain:NSUserDomainMask
-                           appropriateForURL:nil
-                                      create:NO
-                                       error:nil];
-    NSString *fileName=[[[NSUUID UUID] UUIDString] stringByAppendingPathExtension:@"txt"];
-    NSURL *FURL=[docDURL URLByAppendingPathComponent:fileName];
-    if([dic writeToURL:FURL atomically:YES]){//dicをFURLへ書き込み
-        //書き込みに成功したならテーブルに追加する
-   [_objects insertObject:FURL atIndex:0];
-    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
-    [self.tableView insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
-    }
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"タイトル"
+                                                    message:nil
+                                                   delegate:self
+                                          cancelButtonTitle:@"キャンセル"
+                                          otherButtonTitles:@"OK", nil];
+    
+    [alert setAlertViewStyle:UIAlertViewStylePlainTextInput];
+
+    [alert show];
+    
     
 }
+
+//通常のdelegateですが、textFieldAtIndexを使ってテキストを取得する
+-(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
+    if (buttonIndex==1) {
+        NSString *title;
+        title = [[alertView textFieldAtIndex:0] text];
+        
+        NSDictionary *dic=@{ @"title":title,@"body":@"はは"};
+        NSFileManager *FManager=[NSFileManager defaultManager];
+        NSURL *docDURL=[FManager URLForDirectory:NSDocumentDirectory
+                                        inDomain:NSUserDomainMask
+                               appropriateForURL:nil
+                                          create:NO
+                                           error:nil];
+        NSString *fileName=[[[NSUUID UUID] UUIDString] stringByAppendingPathExtension:@"txt"];
+        NSURL *FURL=[docDURL URLByAppendingPathComponent:fileName];
+        if([dic writeToURL:FURL atomically:YES]){//dicをFURLへ書き込み
+            //書き込みに成功したならテーブルに追加する
+            [_objects insertObject:FURL atIndex:0];
+            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
+            [self.tableView insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+        }
+
+    }
+}
+
 
 #pragma mark - Segues
 
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    if ([[segue identifier] isEqualToString:@"showDetail"]) {
-        NSIndexPath *indexPath = [self.tableView indexPathForSelectedRow];
-       // NSDate *object = self.objects[indexPath.row];
-        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-        NSString *str1 = [defaults stringForKey:@"tv1"];
-        //NSString *object1 = str1;
-        [[segue destinationViewController] setDetailItem:str1];
-        NSString *str2 = [defaults stringForKey:@"tv2"];
-        //NSString *object2 = str2;
-        [[segue destinationViewController] setDetailItem:str2];
-    }
-}
+//- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+////  
+////    
+////    if ([[segue identifier] isEqualToString:@"showDetail"]) {
+////        
+////        
+//       NSIndexPath *indexPath = [self.tableView indexPathForSelectedRow];
+//       NSDate *object = self.objects[indexPath.row];
+//////        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+//////        NSString *str1 = [defaults stringForKey:@"tv1"];
+////        NSString *object1 = str1;
+////        [[segue destinationViewController] setDetailItem:str1];
+//////        NSString *str2 = [defaults stringForKey:@"tv2"];
+////        NSString *object2 = str2;
+////       
+////        
+////        [[segue destinationViewController] setDetailItem:str2];
+////    }
+//
+//}
 
 #pragma mark - Table View
 
@@ -108,31 +141,43 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    
+    
     return self.objects.count;
+    
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+   
+    
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
 
     //NSDate *object = self.objects[indexPath.row];
     NSURL *FURL = _objects[indexPath.row];
     NSDictionary *dic = [NSDictionary dictionaryWithContentsOfURL:FURL];
     cell.textLabel.text = dic[@"title"];
+   
     return cell;
 }
 
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
     // Return NO if you do not want the specified item to be editable.
+    
     return YES;
 }
 
+
+//追加項目を削除できるようにする
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+   
+    
     /*if (editingStyle == UITableViewCellEditingStyleDelete) {
         [self.objects removeObjectAtIndex:indexPath.row];
         [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
     } else if (editingStyle == UITableViewCellEditingStyleInsert) {
         // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view.
-    }*/
+   
+     }*/
 
 if (editingStyle == UITableViewCellEditingStyleDelete) {
     NSURL *FURL=_objects[indexPath.row];//ファイルURLを取得
